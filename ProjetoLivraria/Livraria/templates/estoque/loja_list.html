@@ -1,0 +1,92 @@
+{% extends 'estoque/base.html' %}
+{% block content %}
+  {% if user.is_authenticated %}
+    <form method="GET">
+      {{ form.as_p }}
+      <button type="submit" class="button primary">Filtrar</button>
+    </form>
+    <table class="striped">
+      <caption>
+        {{ page_info_plural }}
+        <span class="is-right">
+          <a class="button primary" href="{% url 'loja-create' %}">Novo</a>
+        </span>
+      </caption>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Livros</th>
+          <th>Quantidade de clientes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in object_list %}
+        <tr>
+          <td>
+            <a href="{% url 'loja-update' obj.pk %}">{{ obj.nome }}</a>
+          </td>
+          <td>
+            {% for a in obj.livros.all %}
+              {{ a }}</br>
+            {% endfor %}
+          </td>
+          <td>{{ obj.quantidade_de_clientes }}</td>
+          <td>
+            <a class="button error" href="{% url 'generic-delete' obj.pk 'estoque' 'Loja' %}?success_url={% url 'loja-list' %}">
+              Remover
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <table class="striped">
+      <caption>
+        {{ page_info_plural }}
+      </caption>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Livros</th>
+          <th>Quantidade de clientes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in object_list %}
+        <tr>
+          <td>{{ obj.nome }}</td>
+          <td>
+            {% for livro in obj.livros.all %}
+              {{ livro }}</br>
+            {% endfor %}
+          </td>
+          <td>{{ obj.quantidade_de_clientes }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock content %}
+{% block js %}
+  <script type="text/javascript">
+    $("#loja-form").change(function () {
+      var nome = $(this).val();
+      $.ajax({
+        url: '{% url "loja-taken" %}',
+        data: {
+          'nome': nome,
+		      'quantidade_de_clientes' : quantidade_de_clientes,
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (data.is_taken) {
+            $('#nome_taken').html(data.message);
+          } else {
+            $('#nome_taken').html(data.message);
+          }
+        }
+      });
+    });
+  </script>
+{% endblock js %}
